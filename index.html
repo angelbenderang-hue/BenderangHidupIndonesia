@@ -4452,6 +4452,37 @@
     checkAutoReminders();
     setTimeout(flushSheetsQueue, 2000);
 </script>
+  <!-- Firebase SDK and Configuration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-analytics.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2c7cgJ1Cssf5XQN2k7G9u0ZiuApr6zoI",
+      authDomain: "benderang-hidup-indonesia.firebaseapp.com",
+      databaseURL: "https://benderang-hidup-indonesia-default-rtdb.firebaseio.com",
+      projectId: "benderang-hidup-indonesia",
+      storageBucket: "benderang-hidup-indonesia.firebasestorage.app",
+      messagingSenderId: "377632554783",
+      appId: "1:377632554783:web:7b2309902894289cdefa2a",
+      measurementId: "G-PWRFET8MXV"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase(app);
+
+    // Expose to window for use in other scripts
+    window.firebaseApp = app;
+    window.firebaseDb = database;
+    window.firebaseRef = ref;
+    window.firebaseSet = set;
+    window.firebaseOnValue = onValue;
+
+    console.log("Firebase initialized successfully");
+  </script>
 </body>
 
 </html>
