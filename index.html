@@ -469,34 +469,35 @@
     #app-tv {
       min-height: 100%;
       position: relative;
-      overflow: hidden
+      overflow-y: auto;
     }
 
     #screen-dashboard {
-      position: absolute;
-      inset: 0;
-      padding: 18px 18px 36px 18px;
+      position: relative;
+      padding: 18px 18px 48px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       transition: opacity 0.8s;
-      height: 100%;
+      height: auto;
+      min-height: 100vh;
     }
 
     /* Progress bar fixed di paling bawah layar dashboard */
     #dashboard-progress-wrap {
-      position: absolute;
+      position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 28px;
-      background: #0a0c10;
+      height: 32px;
+      background: #0a0c10ee;
       border-top: 1px solid #1a1f2e;
       display: flex;
       align-items: center;
-      padding: 0 12px;
-      gap: 10px;
-      z-index: 10;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 100;
+      backdrop-filter: blur(8px);
     }
 
     #dashboard-countdown {
@@ -641,8 +642,8 @@
 
     .priority-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px
     }
 
     .pcard {
@@ -721,13 +722,11 @@
     .task-items {
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      height: 100%;
-      max-height: 90px;
-      overflow-y: scroll;
-      scrollbar-width: none;
-      scrollbar-color: rgb(26, 31, 46) rgb(15, 18, 24);
-      padding-right: 10px;
+      gap: 7px;
+      height: auto;
+      max-height: none;
+      overflow-y: visible;
+      padding-right: 0px;
     }
 
 
@@ -817,9 +816,9 @@
 
     .prog-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      height: 100%;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      height: auto;
     }
 
     .prog-row {
@@ -849,11 +848,27 @@
     .pr-meta {
       font-size: 11px;
       color: #555e7a;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis
+      margin-bottom: 6px
     }
+
+    .pr-tasks {
+      margin: 4px 0 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pr-task-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #9097ab;
+      line-height: 1.6;
+      border-bottom: 1px solid #1a1f2e44;
+      padding-bottom: 2px;
+    }
+    .pr-task-item:last-child { border-bottom: none; }
 
     .pr-bar {
       height: 4px;
@@ -2479,6 +2494,15 @@
       return `${label} (${diff} hari lagi)`;
     }
 
+    function getInit(name) {
+      if (!name || name === "—") return "—";
+      const e = (typeof employees !== "undefined" ? employees : []).find(x => x.name === name);
+      if (e && e.init) return e.init;
+      return name.split(" ").map(n => n[0]).join("").toUpperCase();
+    }
+
+    function esc(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
     // ============ PERSISTENT STORAGE ============
     const STORAGE_KEY = "bhi_state_v6";
 
@@ -3009,8 +3033,21 @@
       if (!grid) return;
 
       function card(cls, lbl, lblCls, cntCls, items, dotCls, daysCls) {
-        console.log(items);
-        const it = items.slice(0, items.length).map(x => `<div class="task-item"><div class="dot ${dotCls}"></div><span class="tname" title="${esc(x.proj)} — ${esc(x.task)}">${esc(x.task)}</span><span class="tperson">${esc(x.person?.split(" ")[0] || "")}</span>${x.d !== undefined ? `<span class="tdays ${daysCls || ''}">${x.d < 0 ? Math.abs(x.d) + "h lalu" : x.d === 0 ? "Hari ini" : x.d + "h lagi"}</span>` : ""}</div>`).join("") || `<div class="no-items">—</div>`;
+        const it = items.map(x => {
+          return `
+            <div class="task-item" style="margin-bottom: 8px;">
+              <div class="dot ${dotCls}"></div>
+              <div style="flex:1; min-width:0; display:flex; align-items:center; gap:10px;">
+                <span style="color:#EF9F27; font-size:11px; font-weight:800; text-transform:uppercase; flex-shrink:0;">${esc(x.proj)}</span>
+                <span style="color:#3d4459; font-size:12px; font-weight:bold;">|</span>
+                <span style="color:#c8ccd8; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(x.task)}">${esc(x.task)}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; margin-left:12px;">
+                <span class="tperson">${esc(getInit(x.person))}</span>
+                ${x.d !== undefined ? `<span class="tdays ${daysCls || ''}">${x.d < 0 ? Math.abs(x.d) + "h lalu" : x.d === 0 ? "Hari ini" : x.d + "h lagi"}</span>` : ""}
+              </div>
+            </div>`;
+        }).join("") || `<div class="no-items">—</div>`;
         return `<div class="pcard ${cls}"><div class="pcard-label ${lbl}">${lbl.replace("lbl-", "").toUpperCase()}</div><div class="pcard-count ${cntCls}">${items.length}</div><div class="task-items">${it}</div></div>`;
       }
       grid.innerHTML =
@@ -3026,10 +3063,25 @@
       if (!progs.length) { pgrid.innerHTML = '<div style="color:#2a3040;font-size:13px;font-style:italic">Semua project selesai! 🎉</div>'; return; }
       pgrid.innerHTML = progs.map(p => {
         const color = p.pctAvg >= 75 ? "#1D9E75" : p.pctAvg >= 50 ? "#378ADD" : p.pctAvg >= 25 ? "#BA7517" : "#E24B4A";
+        const activeTasks = p.tasks.filter(t => t.pct < 100);
+        const tasksHtml = `<div class="pr-tasks">
+          ${activeTasks.length > 0 
+            ? activeTasks.map(t => `
+              <div class="pr-task-item">
+                <div class="dot" style="background:#EF9F27; width:4px; height:4px; flex-shrink:0"></div>
+                <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(t.name)}">${esc(t.name)}</span>
+                <span style="color:#555e7a; font-weight:600; font-size:10px">${esc(getInit(t.person))}</span>
+                <span style="color:#EF9F27; font-size:10px; font-weight:700">${t.pct}%</span>
+              </div>`).join("")
+            : '<div class="pr-task-item" style="opacity:0.4; font-style:italic">Tidak ada task aktif</div>'
+          }
+        </div>`;
+
         return `<div class="prog-row">
       <div class="pr-left">
         <div class="pr-name" title="${esc(p.name)}">${esc(p.name)}</div>
-        <div class="pr-meta">${esc(p.client)} · ${esc(p.mainPerson)}</div>
+        <div class="pr-meta">${esc(p.client)} · ${esc(getInit(p.mainPerson))}</div>
+        ${tasksHtml}
         <div class="pr-bar"><div class="pr-fill" style="width:${p.pctAvg}%;background:${color}"></div></div>
       </div>
       <div class="pr-right">
@@ -3191,9 +3243,9 @@
       const proj = unfinished[idx];
       const sProj = document.getElementById("screen-project-dashboard");
       sProj.style.opacity = "1"; sProj.style.pointerEvents = "auto";
-      document.getElementById("pj-header-pic").textContent = "PIC: " + proj.mainPerson.toUpperCase();
+      document.getElementById("pj-header-pic").textContent = "PIC: " + getInit(proj.mainPerson).toUpperCase();
       document.getElementById("pj-info-name").textContent = proj.name;
-      document.getElementById("pj-info-pic").textContent = "PIC: " + proj.mainPerson;
+      document.getElementById("pj-info-pic").textContent = "PIC: " + getInit(proj.mainPerson);
       document.getElementById("pj-info-status").textContent = "Status: " + (proj.pctAvg >= 75 ? "FINISHING" : "ON PROGRESS");
       const stack = document.getElementById("pj-photo-stack");
       stack.innerHTML = "";
@@ -3860,10 +3912,7 @@
       renderUserLog();
     }
 
-    // ============================================================
-    // UTIL & BOOT
-    // ============================================================
-    function esc(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    // ============ UTIL & BOOT ============
 
     // ============================================================
     // ARCHIVE SYSTEM — project selesai → pindah ke arsip
