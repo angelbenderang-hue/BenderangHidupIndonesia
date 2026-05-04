@@ -47,7 +47,7 @@
     });
   </script>
   <style>
-/* SHARED STYLES FROM style.css */
+    /* SHARED STYLES FROM style.css */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -114,7 +114,7 @@
     }
 
     #main-nav {
-      position: sticky;
+      position: absolute;
       top: 0;
       z-index: 500;
     }
@@ -868,7 +868,10 @@
       border-bottom: 1px solid #1a1f2e44;
       padding-bottom: 2px;
     }
-    .pr-task-item:last-child { border-bottom: none; }
+
+    .pr-task-item:last-child {
+      border-bottom: none;
+    }
 
     .pr-bar {
       height: 4px;
@@ -1778,7 +1781,7 @@
     .adm-card {
       width: 100%
     }
-</style>
+  </style>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -2452,10 +2455,10 @@
 
 
   <script>
-/* ============================================================
-       BENDERANG HIDUP INDONESIA — SHARED DATA & UTILITIES
-       bhi-data.js
-       ============================================================ */
+    /* ============================================================
+           BENDERANG HIDUP INDONESIA — SHARED DATA & UTILITIES
+           bhi-data.js
+           ============================================================ */
 
     // ============ CONFIG ============
     const ADMIN_CODE = "benderang2025";
@@ -2540,7 +2543,7 @@
     }
 
     let isSyncing = false;
-    window.applyState = function(s) {
+    window.applyState = function (s) {
       if (!s || isSyncing) return;
       isSyncing = true;
       try {
@@ -2560,7 +2563,7 @@
           gdriveVision = s.gdrive.vis || "";
         }
         if (s.pins) localStorage.setItem("bhi_pins_v5", JSON.stringify(s.pins));
-        
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
         refreshUI();
       } finally {
@@ -2869,7 +2872,7 @@
         const done = p.tasks.filter(t => t.pct >= 100).length;
         const total = p.tasks.length;
         const currentStageName = stages[currentIdx].name;
-        
+
         const mainPerson = (() => {
           const cnt = {};
           p.tasks.forEach(t => { cnt[t.person] = (cnt[t.person] || 0) + 1; });
@@ -2900,10 +2903,10 @@
       fetch(sheetsUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(entry) }).catch(() => { });
     }
 
-/* ============================================================
-       BENDERANG — LOGIN MODULE (shared by admin.html & user.html)
-       bhi-login.js
-       ============================================================ */
+    /* ============================================================
+           BENDERANG — LOGIN MODULE (shared by admin.html & user.html)
+           bhi-login.js
+           ============================================================ */
 
     let currentUser = null, isAdmin = false, pinBuffer = "";
 
@@ -2988,7 +2991,7 @@
       return false;
     }
 
-// ============================================================
+    // ============================================================
     // ADMIN PAGE INIT
     // ============================================================
 
@@ -3128,7 +3131,7 @@
         const color = getProgColor(p.pctAvg);
         const activeTasks = p.tasks.filter(t => t.pct < 100);
         const tasksHtml = `<div class="pr-tasks">
-          ${activeTasks.length > 0 
+          ${activeTasks.length > 0
             ? activeTasks.map(t => `
               <div class="pr-task-item">
                 <div class="dot" style="background:#EF9F27; width:4px; height:4px; flex-shrink:0"></div>
@@ -3653,7 +3656,7 @@
       const p = projects.find(x => x.id === projId); if (!p) return;
       document.getElementById("at-proj-id").value = projId; document.getElementById("at-name").value = "";
       document.getElementById("at-deadline").value = ""; document.getElementById("at-err").textContent = "";
-      populatePICSelect("at-person"); 
+      populatePICSelect("at-person");
       populateStageSelect("at-stage", p.type);
       document.getElementById("add-task-modal").classList.remove("hidden");
     }
@@ -4705,7 +4708,7 @@
     if (!checkExistingSession()) { document.getElementById("login-overlay").classList.remove("hidden"); }
     checkAutoReminders();
     setTimeout(flushSheetsQueue, 2000);
-</script>
+  </script>
 
 </body>
 
