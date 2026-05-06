@@ -3232,7 +3232,7 @@
       const grid = document.getElementById("priority-grid");
       if (!grid) return;
 
-      function card(cls, lbl, lblCls, cntCls, items, dotCls, daysCls) {
+      function card(cls, lbl, lblCls, cntCls, items, dotCls, daysCls, displayName) {
         const it = items.map(x => {
           return `
             <div class="task-item" style="margin-bottom: 8px;">
@@ -3248,13 +3248,13 @@
               </div>
             </div>`;
         }).join("") || `<div class="no-items">—</div>`;
-        return `<div class="pcard ${cls}"><div class="pcard-label ${lbl}">${lbl.replace("lbl-", "").toUpperCase()}</div><div class="pcard-count ${cntCls}">${items.length}</div><div class="task-items">${it}</div></div>`;
+        return `<div class="pcard ${cls}"><div class="pcard-label ${lbl}">${displayName || lbl.replace("lbl-", "").toUpperCase()}</div><div class="pcard-count ${cntCls}">${items.length}</div><div class="task-items">${it}</div></div>`;
       }
       grid.innerHTML =
         card("pcard-overdue", "lbl-overdue", "lbl-overdue", "cnt-overdue", overdue, "dot-overdue", "days-overdue") +
         card("pcard-today", "lbl-today", "lbl-today", "cnt-today", today, "dot-today", "") +
         card("pcard-risk", "lbl-risk", "lbl-risk", "cnt-risk", risk, "dot-risk", "days-risk") +
-        card("pcard-tomorrow", "lbl-tomorrow", "lbl-tomorrow", "cnt-tomorrow", tomorrow, "dot-tomorrow", "");
+        card("pcard-tomorrow", "lbl-tomorrow", "lbl-tomorrow", "cnt-tomorrow", tomorrow, "dot-tomorrow", "", "UP COMING");
 
       // Progress grid
       const progs = getProjectProgress(); // Show all projects
@@ -3741,7 +3741,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px">
         <div>
           <span style="font-size:16px;font-weight:500;color:#d0d4e0">${esc(p.name)}</span>
-          <span class="badge ${p.type === 'project' ? 'b-proj' : 'b-inq'}" style="margin-left:8px">${p.type === 'project' ? 'Project' : 'Inquiry'}</span>
+          <span class="badge ${p.type === 'project' ? 'b-proj' : 'b-inq'}" style="margin-left:8px;cursor:pointer" title="Klik untuk ganti tipe" onclick="toggleProjectType(${p.id})">${p.type === 'project' ? 'Project' : 'Inquiry'} ✎</span>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
           <span style="font-size:13px;color:#555e7a">${pct}% selesai</span>
@@ -3780,6 +3780,17 @@
         h += `</div>`;
       });
       el.innerHTML = h;
+    }
+
+    function toggleProjectType(id) {
+      const p = projects.find(x => x.id === id);
+      if (!p) return;
+      const newType = p.type === 'project' ? 'inquiry' : 'project';
+      if (!confirm(`Ganti tipe "${p.name}" dari ${p.type === 'project' ? 'Project' : 'Inquiry'} menjadi ${newType === 'project' ? 'Project' : 'Inquiry'}?`)) return;
+      p.type = newType;
+      saveState();
+      renderProjectList();
+      renderDashboard();
     }
 
     let extendCtx = { projId: null, taskId: null };
